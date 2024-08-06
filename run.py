@@ -3,24 +3,33 @@ import bcrypt
 import psycopg2
 from flask_cors import CORS
 import json
-
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import JWTManager
-
+import os
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
 
 app = Flask(__name__)
-#PostgreSQL connection and details
-con = psycopg2.connect(database="aegis_beta", user="postgres", password="t3tr1s", port="5432")
 
+# PostgreSQL connection and details
+db_name = os.getenv('DB_NAME', 'aegis-beta')
+db_user = os.getenv('DB_USER', 'tny70')
+db_password = os.getenv('DB_PASSWORD', 'Terence8')
+db_host = os.getenv('DB_HOST', 'aegis.postgres.database.azure.com')
+db_port = os.getenv('DB_PORT', '5432')
+
+con = psycopg2.connect(
+    database=db_name,
+    user=db_user,
+    password=db_password,
+    host=db_host,
+    port=db_port
+)
 
 # Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] = "youhavetoguess"  # Change this!
+app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY', 'youhavetoguess')
 jwt = JWTManager(app)
 
-#CORS was needed to resolve cross-origin issues
+# CORS was needed to resolve cross-origin issues
 CORS(app)
+
 
 #API for registering a user
 @app.post("/api/add_user")
